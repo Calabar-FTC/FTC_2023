@@ -1,0 +1,241 @@
+/* Copyright (c) 2021 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.firstinspires.ftc.teamcode;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+
+/**
+ * This file contains an example of a Linear "OpMode".
+ * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
+ * The names of OpModes appear on the menu of the FTC Driver Station.
+ * When a selection is made from the menu, the corresponding OpMode is executed.
+ *
+ * This particular OpMode illustrates driving a 4-motor Omni-Directional (or Holonomic) robot.
+ * This code will work with either a Mecanum-Drive or an X-Drive train.
+ * Both of these drives are illustrated at https://gm0.org/en/latest/docs/robot-design/drivetrains/holonomic.html
+ * Note that a Mecanum drive must display an X roller-pattern when viewed from above.
+ *
+ * Also note that it is critical to set the correct rotation direction for each motor.  See details below.
+ *
+ * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
+ * Each motion axis is controlled by one Joystick axis.
+ *
+ * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
+ * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
+ * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
+ *
+ * This code is written assuming that the right-side motors need to be reversed for the robot to drive forward.
+ * When you first test your robot, if it moves backward when you push the left stick forward, then you must flip
+ * the direction of all 4 motors (see code below).
+ *
+ * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ */
+
+
+
+@TeleOp(name="Champion", group="Linear Opmode")
+
+public class DriverControl2023 extends LinearOpMode {
+
+    // The relativeLayout field is used to aid in providing interesting visual feedback
+    View relativeLayout;
+
+    private MainConfig2023 config = new MainConfig2023();
+
+    @Override
+    public void runOpMode() {
+
+
+        // Wait for the game to start (driver presses PLAY)
+        waitForStart();
+
+        //runtime.reset();
+
+        while (opModeIsActive()) {
+
+            //ColourSensor();
+            //Intake();
+            //Linear_Slide();
+            Mecanum_Drive();
+        }
+    }
+
+
+    public void Mecanum_Drive() {
+        double right_power = gamepad1.right_stick_y;
+        double left_power = gamepad1.left_stick_y;
+        boolean mecanumright = gamepad1.dpad_left;//makes robot move to the right side
+        boolean mecanumleft = gamepad1.dpad_right;//makes robot move to the right side
+
+        double power = 1;
+
+        if (mecanumleft) {
+            config.leftDrive2.setPower(-power);
+            config.rightDrive2.setPower(power);
+            config.leftDrive.setPower(power);
+            config.rightDrive.setPower(-power);
+
+        } else {
+            config.leftDrive2.setPower(0);
+            config.rightDrive2.setPower(0);
+            config.leftDrive.setPower(0);
+            config.rightDrive.setPower(0);
+        }
+
+
+        if (mecanumright) {
+            config.leftDrive2.setPower(power);
+            config.rightDrive2.setPower(-power);
+            config.leftDrive.setPower(-power);
+            config.rightDrive.setPower(power);
+
+        } else {
+            config.leftDrive2.setPower(0);
+            config.rightDrive2.setPower(0);
+            config.leftDrive.setPower(0);
+            config.rightDrive.setPower(0);
+        }
+
+        if ((!mecanumleft) && (!mecanumright)) {
+            config.leftDrive2.setPower(right_power);
+            config.rightDrive2.setPower(left_power);
+            config.leftDrive.setPower(right_power);
+            config.rightDrive.setPower(left_power);
+
+        }
+    }
+
+
+
+            public void  Linear_Slide() {
+                float right_trig = gamepad2.right_trigger;//makes linear slide go up
+                float left_trig = gamepad2.left_trigger;//makes linear slide go down
+
+                if (right_trig > 0.5) {
+                    config.linearslide.setPower(1);
+                } else {
+                    config.linearslide.setPower(0);
+                }
+
+                if (left_trig > 0.5) {
+                    config.linearslide.setPower(-1);
+                } else {
+                    config.linearslide.setPower(0);
+                }
+            }
+
+
+
+           public void Intake()
+           {
+               boolean bump_right = gamepad2.a;//open claws
+               boolean bump_left = gamepad2.x;//close claws
+
+               if (bump_right) {
+                   config.servo.setPosition(0.5);
+               }
+
+               if (bump_left) {
+                   config.servo.setPosition(0);
+               }
+           }
+
+
+           public void ColourSensor()
+           {
+
+               float gain = 2;
+               final float[] hsvValues = new float[3];
+
+               if (config.colorSensor instanceof SwitchableLight) {
+                   ((SwitchableLight)config.colorSensor).enableLight(true);
+               }
+
+
+                   telemetry.addLine("Hold the A button on gamepad 1 to increase gain, or B to decrease it.\n");
+                   telemetry.addLine("Higher gain values mean that the sensor will report larger numbers for Red, Green, and Blue, and Value\n");
+
+                   if (gamepad1.a) {
+                       // Only increase the gain by a small amount, since this loop will occur multiple times per second.
+                       gain += 0.005;
+                   } else if (gamepad1.b && gain > 1) {
+                       gain -= 0.005;
+                   }
+
+                   // Show the gain value via telemetry
+                   telemetry.addData("Gain", gain);
+
+                   config.colorSensor.setGain(gain);
+
+
+
+                   // Get the normalized colors from the sensor
+                   NormalizedRGBA colors = config.colorSensor.getNormalizedColors();
+
+                   // Update the hsvValues array by passing it to Color.colorToHSV()
+                   Color.colorToHSV(colors.toColor(), hsvValues);
+
+                   telemetry.addLine()
+                           .addData("Red", "%.3f", colors.red)
+                           .addData("Green", "%.3f", colors.green)
+                           .addData("Blue", "%.3f", colors.blue);
+                   telemetry.addLine()
+                           .addData("Hue", "%.3f", hsvValues[0])
+                           .addData("Saturation", "%.3f", hsvValues[1])
+                           .addData("Value", "%.3f", hsvValues[2]);
+                   telemetry.addData("Alpha", "%.3f", colors.alpha);
+
+
+                   telemetry.update();
+
+                   // Change the Robot Controller's background color to match the color detected by the color sensor.
+             int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
+             relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
+
+             }
+}
+
