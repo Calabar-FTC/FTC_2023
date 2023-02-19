@@ -20,35 +20,38 @@ public class MainConfig2023
      DcMotor rightDrive = null;
      DcMotor leftDrive2 = null;
      DcMotor rightDrive2 = null;
-     DcMotor linearslide = null;
+    DcMotor linslide_left = null;
+    DcMotor  linslide_right = null;
      Servo servo;
 
-     public HardwareMap hardMap;
+     HardwareMap hardMap;
      NormalizedColorSensor colorSensor;
 
     static double wheel_diameter = 9.8;
 
 
-    public void TotalHardeware ()
+    public void TotalHardeware (HardwareMap hardMap)
     {
+        this.hardMap = hardMap;
+        colorSensor = this.hardMap.get(NormalizedColorSensor.class, "sensor_color");
+        //colorSensor = this.hardMap.get(ColorSensor.class, "color_distance");
 
-        colorSensor =hardMap.get(NormalizedColorSensor.class, "sensor_color");
-        //colorSensor = hardMap.get(ColorSensor.class, "color_distance");
 
-
-        leftDrive =hardMap.get(DcMotor.class, "left_drive");
-        rightDrive = hardMap.get(DcMotor.class, "right_drive");
-        leftDrive2 = hardMap.get(DcMotor.class, "left_drive2");
-        rightDrive2 = hardMap.get(DcMotor.class, "right_drive2");
-        linearslide = hardMap.get(DcMotor.class, "linear");
-        servo = hardMap.get(Servo.class, "lin-motor");
+        leftDrive = this.hardMap.get(DcMotor.class, "left_drive");
+        rightDrive = this.hardMap.get(DcMotor.class, "right_drive");
+        leftDrive2 = this.hardMap.get(DcMotor.class, "left_drive2");
+        rightDrive2 = this.hardMap.get(DcMotor.class, "right_drive2");
+        linslide_left = this.hardMap.get(DcMotor.class, "linear");
+        linslide_right = this.hardMap.get(DcMotor.class, "linear2");
+        servo = this.hardMap.get(Servo.class, "lin-motor");
 
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive2.setDirection(DcMotor.Direction.FORWARD);
         rightDrive2.setDirection(DcMotor.Direction.REVERSE);
-        linearslide.setDirection(DcMotor.Direction.FORWARD);
+        linslide_left.setDirection(DcMotor.Direction.FORWARD);
+        linslide_right.setDirection(DcMotor.Direction.FORWARD);
         servo.setDirection(Servo.Direction.FORWARD);
 
 

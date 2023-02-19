@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -16,7 +17,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 
-
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 /**
@@ -59,10 +60,12 @@ public class Original extends LinearOpMode {
     public DcMotor rightDrive = null;
     public DcMotor leftDrive2 = null;
     public DcMotor rightDrive2 = null;
-    public DcMotor linearslide = null;
-    public DcMotor linearslide2 = null;
-    public Servo servo;
-    NormalizedColorSensor colorSensor;
+    public DcMotor linslide_left = null;
+    public DcMotor  linslide_right = null;
+    public Servo servo1;
+    public Servo servo2;
+    //NormalizedColorSensor colorSensor;
+    //public DistanceSensor sensorRange;
 
 
     @Override
@@ -77,11 +80,14 @@ public class Original extends LinearOpMode {
         rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
         leftDrive2 = hardwareMap.get(DcMotor.class, "left_drive2");
         rightDrive2 = hardwareMap.get(DcMotor.class, "right_drive2");
-        linearslide = hardwareMap.get(DcMotor.class, "linear");
-        linearslide2 = hardwareMap.get(DcMotor.class, "linear2");
 
-        servo = hardwareMap.get(Servo.class, "lin-motor");
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        linslide_left = hardwareMap.get(DcMotor.class, "linear");
+        linslide_right = hardwareMap.get(DcMotor.class, "linear2");
+        servo1 = hardwareMap.get(Servo.class, "lin-motor1");
+        servo2 = hardwareMap.get(Servo.class, "lin-motor2");
+
+        //colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        //sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -92,28 +98,30 @@ public class Original extends LinearOpMode {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive2.setDirection(DcMotor.Direction.FORWARD);
         rightDrive2.setDirection(DcMotor.Direction.REVERSE);
-        linearslide.setDirection(DcMotor.Direction.FORWARD);
-        servo.setDirection(Servo.Direction.FORWARD);
-
-
-        double power = 1;
+        linslide_left.setDirection(DcMotor.Direction.FORWARD);
+        linslide_right.setDirection(DcMotor.Direction.FORWARD);
+        servo1.setDirection(Servo.Direction.FORWARD);
+        servo2.setDirection(Servo.Direction.REVERSE);
 
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
+
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            ColourSensor();
+            //DistanceSensor();
+            //ColourSensor();
             Intake();
             Linear_Slide();
             Mecanum_Drive();
 
+            telemetry.update();
         }
     }
-
 
     public void Mecanum_Drive() {
         double right_power = gamepad1.right_stick_y;
@@ -121,7 +129,7 @@ public class Original extends LinearOpMode {
         boolean mecanumright = gamepad1.dpad_left;//makes robot move to the right side
         boolean mecanumleft = gamepad1.dpad_right;//makes robot move to the right side
 
-        double power = 1;
+        double power = 0.75;
 
         if (mecanumleft) {
             leftDrive2.setPower(-power);
@@ -135,8 +143,6 @@ public class Original extends LinearOpMode {
             leftDrive.setPower(0);
             rightDrive.setPower(0);
         }
-
-
         if (mecanumright) {
             leftDrive2.setPower(power);
             rightDrive2.setPower(-power);
@@ -163,38 +169,81 @@ public class Original extends LinearOpMode {
     public void Linear_Slide() {
         float right_trig = gamepad2.right_trigger;//makes linear slide go up
         float left_trig = gamepad2.left_trigger;//makes linear slide go down
+        double speedy=1;
 
+        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         if (right_trig > 0.5) {
-            linearslide.setPower(1);
+            linslide_left.setPower(speedy);
+            linslide_right.setPower(-speedy);
         } else {
-            linearslide.setPower(0);
+            linslide_left.setPower(0);
+            linslide_right.setPower(0);
         }
 
         if (left_trig > 0.5) {
-            linearslide.setPower(-1);
+            linslide_left.setPower(-speedy);
+            linslide_right.setPower(speedy);
         } else {
-            linearslide.setPower(0);
+            linslide_left.setPower(0);
+            linslide_right.setPower(0);
         }
+        telemetry.addData("Power of linear slide",speedy);
     }
-
 
     public void Intake() {
         boolean bump_right = gamepad2.a;//open claws
         boolean bump_left = gamepad2.x;//close claws
 
         if (bump_right) {
-            servo.setPosition(0.5);
+            servo1.setPosition(0.3);
+            servo2.setPosition(0.3);
         }
 
         if (bump_left) {
-            servo.setPosition(0);
+            servo1.setPosition(0);
+            servo2.setPosition(0);
         }
     }
 
+/***
     public void ColourSensor() {
 
+        final float[] hsvValues = new float[3];
+        if (colorSensor instanceof SwitchableLight) {
+            ((SwitchableLight)colorSensor).enableLight(true);
+        }
+
+        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+
+        Color.colorToHSV(colors.toColor(), hsvValues);
+        telemetry.addLine()
+                .addData("Red", "%.3f", colors.red)
+                .addData("Green", "%.3f", colors.green)
+                .addData("Blue", "%.3f", colors.blue);
+        telemetry.addLine()
+                .addData("Hue", "%.3f", hsvValues[0])
+                .addData("Saturation", "%.3f", hsvValues[1])
+                .addData("Value", "%.3f", hsvValues[2]);
+
+        telemetry.addData("Alpha", "%.3f", colors.alpha);
 
     }
+    public void DistanceSensor() {
+        telemetry.addData("deviceName",sensorRange.getDeviceName() );
+        telemetry.addData("range", String.format("%.01f mm", sensorRange.getDistance(DistanceUnit.MM)));
+        telemetry.addData("range", String.format("%.01f cm", sensorRange.getDistance(DistanceUnit.CM)));
+        telemetry.addData("range", String.format("%.01f m", sensorRange.getDistance(DistanceUnit.METER)));
+        telemetry.addData("range", String.format("%.01f in", sensorRange.getDistance(DistanceUnit.INCH)));
+
+    }
+
+    public void MswitchSensor()
+    {
+
+    }
+ */
+
+
 }
 
 

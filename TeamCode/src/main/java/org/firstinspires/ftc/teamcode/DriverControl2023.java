@@ -81,15 +81,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class DriverControl2023 extends LinearOpMode {
 
-    // The relativeLayout field is used to aid in providing interesting visual feedback
-    View relativeLayout;
-
     private MainConfig2023 config = new MainConfig2023();
 
     @Override
     public void runOpMode() {
-
-
+        config.TotalHardeware(hardwareMap);
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -97,10 +93,12 @@ public class DriverControl2023 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            //ColourSensor();
-            //Intake();
-            //Linear_Slide();
+            ColourSensor();
+            Intake();
+            Linear_Slide();
             Mecanum_Drive();
+
+            telemetry.update();
         }
     }
 
@@ -126,7 +124,6 @@ public class DriverControl2023 extends LinearOpMode {
             config.rightDrive.setPower(0);
         }
 
-
         if (mecanumright) {
             config.leftDrive2.setPower(power);
             config.rightDrive2.setPower(-power);
@@ -149,26 +146,26 @@ public class DriverControl2023 extends LinearOpMode {
         }
     }
 
-
-
             public void  Linear_Slide() {
                 float right_trig = gamepad2.right_trigger;//makes linear slide go up
                 float left_trig = gamepad2.left_trigger;//makes linear slide go down
 
                 if (right_trig > 0.5) {
-                    config.linearslide.setPower(1);
+                    config.linslide_left.setPower(1);
+                    config.linslide_right.setPower(1);
                 } else {
-                    config.linearslide.setPower(0);
+                    config.linslide_left.setPower(0);
+                    config.linslide_right.setPower(0);
                 }
 
                 if (left_trig > 0.5) {
-                    config.linearslide.setPower(-1);
+                    config.linslide_left.setPower(-1);
+                    config.linslide_right.setPower(-1);
                 } else {
-                    config.linearslide.setPower(0);
+                    config.linslide_left.setPower(0);
+                    config.linslide_right.setPower(0);
                 }
             }
-
-
 
            public void Intake()
            {
@@ -185,57 +182,27 @@ public class DriverControl2023 extends LinearOpMode {
            }
 
 
-           public void ColourSensor()
-           {
+    public void ColourSensor() {
 
-               float gain = 2;
-               final float[] hsvValues = new float[3];
+        final float[] hsvValues = new float[3];
+        if (config.colorSensor instanceof SwitchableLight) {
+            ((SwitchableLight)config.colorSensor).enableLight(true);
+        }
 
-               if (config.colorSensor instanceof SwitchableLight) {
-                   ((SwitchableLight)config.colorSensor).enableLight(true);
-               }
+        NormalizedRGBA colors = config.colorSensor.getNormalizedColors();
 
+        Color.colorToHSV(colors.toColor(), hsvValues);
+        telemetry.addLine()
+                .addData("Red", "%.3f", colors.red)
+                .addData("Green", "%.3f", colors.green)
+                .addData("Blue", "%.3f", colors.blue);
+        telemetry.addLine()
+                .addData("Hue", "%.3f", hsvValues[0])
+                .addData("Saturation", "%.3f", hsvValues[1])
+                .addData("Value", "%.3f", hsvValues[2]);
 
-                   telemetry.addLine("Hold the A button on gamepad 1 to increase gain, or B to decrease it.\n");
-                   telemetry.addLine("Higher gain values mean that the sensor will report larger numbers for Red, Green, and Blue, and Value\n");
+        telemetry.addData("Alpha", "%.3f", colors.alpha);
 
-                   if (gamepad1.a) {
-                       // Only increase the gain by a small amount, since this loop will occur multiple times per second.
-                       gain += 0.005;
-                   } else if (gamepad1.b && gain > 1) {
-                       gain -= 0.005;
-                   }
-
-                   // Show the gain value via telemetry
-                   telemetry.addData("Gain", gain);
-
-                   config.colorSensor.setGain(gain);
-
-
-
-                   // Get the normalized colors from the sensor
-                   NormalizedRGBA colors = config.colorSensor.getNormalizedColors();
-
-                   // Update the hsvValues array by passing it to Color.colorToHSV()
-                   Color.colorToHSV(colors.toColor(), hsvValues);
-
-                   telemetry.addLine()
-                           .addData("Red", "%.3f", colors.red)
-                           .addData("Green", "%.3f", colors.green)
-                           .addData("Blue", "%.3f", colors.blue);
-                   telemetry.addLine()
-                           .addData("Hue", "%.3f", hsvValues[0])
-                           .addData("Saturation", "%.3f", hsvValues[1])
-                           .addData("Value", "%.3f", hsvValues[2]);
-                   telemetry.addData("Alpha", "%.3f", colors.alpha);
-
-
-                   telemetry.update();
-
-                   // Change the Robot Controller's background color to match the color detected by the color sensor.
-             int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
-             relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
-
-             }
+    }
 }
 
