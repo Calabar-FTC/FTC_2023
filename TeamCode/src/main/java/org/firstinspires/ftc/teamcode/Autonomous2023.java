@@ -40,15 +40,17 @@ public class Autonomous2023 extends LinearOpMode {
     // Go to your motor vendor website to determine your motor's WHEEL_DIAMETER
     //  Circumfrence of the wheel
     // Calculate the COUNTS_PER_INCH for your specific drive train.
-    static final double COUNTS_PER_MOTOR_REV = 28;    // Ultra Planetary Motor Encoder
-    static final double WHEEL_DIAMETER_CM = 9.8;     // Mecanum Wheel circumference
-    static final double distance_per_rev = (WHEEL_DIAMETER_CM * Math.PI);
+    static final double COUNTS_PER_MOTOR_REV = 500;   // Ultra Planetary Motor Encoder
+    static final double WHEEL_DIAMETER_CM = 9.8;     // Mecanum Wheel circumference cm
+    static final double distance_per_rev = (WHEEL_DIAMETER_CM * Math.PI); //distance in cm
     static final double DRIVE_SPEED = 0.5;
 
     int newLeftTarget;
     int newRightTarget;
     int newLeftTarget2;
     int newRightTarget2;
+    double servotargetleft;
+    double servotargetright;
 
 
     @Override
@@ -64,7 +66,7 @@ public class Autonomous2023 extends LinearOpMode {
         leftDrive2 = hardwareMap.get(DcMotor.class, "left_drive2");
         rightDrive2 = hardwareMap.get(DcMotor.class, "right_drive2");
 
-        linslide_left = hardwareMap.get(DcMotor.class, "linear");
+        linslide_left = hardwareMap.get(DcMotor.class, "linear1");
         linslide_right = hardwareMap.get(DcMotor.class, "linear2");
 
         servo1 = hardwareMap.get(Servo.class, "lin-motor1");
@@ -78,10 +80,10 @@ public class Autonomous2023 extends LinearOpMode {
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
 
-        leftDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        leftDrive2.setDirection(DcMotor.Direction.REVERSE );
-        rightDrive2.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftDrive2.setDirection(DcMotor.Direction.FORWARD);
+        rightDrive2.setDirection(DcMotor.Direction.REVERSE);
 
         linslide_left.setDirection(DcMotor.Direction.FORWARD);
         linslide_right.setDirection(DcMotor.Direction.FORWARD);
@@ -94,13 +96,21 @@ public class Autonomous2023 extends LinearOpMode {
         leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+//        servo1.
+//        servo2.setDirection(Servo.Direction.REVERSE);
+
+
 
         waitForStart();
 
 
-        linslide_up(0.7,500, 2);
-        linslide_down(0.7,500, 2);
-        //Drive_Train(DRIVE_SPEED, 900, 2);
+        //linslide_up(0.7,50000, 2);
+        //linslide_down(0.7,49000, 2);
+        Drive_Foward(DRIVE_SPEED, 100, 10);
+        Drive_backward(DRIVE_SPEED,100 , 10);
         //Turn_right (DRIVE_SPEED, 900,2 );
         //Turn_left (DRIVE_SPEED, 900,2 );
         runtime.reset();
@@ -140,21 +150,76 @@ public class Autonomous2023 extends LinearOpMode {
 
     }
 
-    public void Drive_Train(double speed, double distance, double timeoutS) {
+    public void Drive_Foward(double speed, double distance, double timeoutS) {
 
         if (opModeIsActive()) {
-
-
-            int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
+            int distance_travel = (int) ((distance / distance_per_rev) * COUNTS_PER_MOTOR_REV);
             newLeftTarget = leftDrive.getCurrentPosition();
             newRightTarget = rightDrive.getCurrentPosition();
-            newLeftTarget2 = leftDrive.getCurrentPosition();
+            newLeftTarget2 = leftDrive2.getCurrentPosition();
             newRightTarget2 = rightDrive2.getCurrentPosition();
 
             leftDrive.setTargetPosition(newLeftTarget + distance_travel);
             rightDrive.setTargetPosition(newRightTarget + distance_travel);
             leftDrive2.setTargetPosition(newLeftTarget2 + distance_travel);
             rightDrive2.setTargetPosition(newRightTarget2 + distance_travel);
+
+            leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDrive2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDrive2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            leftDrive.setPower(Math.abs(speed));
+            rightDrive.setPower(Math.abs(speed));
+            leftDrive2.setPower(Math.abs(speed));
+            rightDrive2.setPower(Math.abs(speed));
+
+
+            while (opModeIsActive() && (runtime.seconds() < timeoutS))
+            {
+
+                if(leftDrive.getCurrentPosition() >= newLeftTarget +distance_travel)
+                {
+                    brake();
+                    break;
+                }
+
+                telemetry.addData("Running to", " %7d :%7d", newLeftTarget, newRightTarget);
+                telemetry.addData("Currently at", " at %5d :%5d", leftDrive.getCurrentPosition(), rightDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+            leftDrive2.setPower(0);
+            rightDrive2.setPower(0);
+
+            leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+        }
+    }
+
+    public void Drive_backward(double speed, double distance, double timeoutS) {
+
+        if (opModeIsActive()) {
+
+
+            int distance_travel = (int) ((distance / distance_per_rev) * COUNTS_PER_MOTOR_REV);
+            newLeftTarget = leftDrive.getCurrentPosition();
+            newRightTarget = rightDrive.getCurrentPosition();
+            newLeftTarget2 = leftDrive.getCurrentPosition();
+            newRightTarget2 = rightDrive2.getCurrentPosition();
+
+            leftDrive.setTargetPosition(newLeftTarget - distance_travel);
+            rightDrive.setTargetPosition(newRightTarget - distance_travel);
+            leftDrive2.setTargetPosition(newLeftTarget2 - distance_travel);
+            rightDrive2.setTargetPosition(newRightTarget2 - distance_travel);
 
             leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -303,7 +368,7 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void linslide_up ( double speed, double distance, double timeoutS){
+    public void linslide_down ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
             int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
@@ -342,7 +407,7 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void linslide_down ( double speed, double distance, double timeoutS){
+    public void linslide_up ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
             int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
@@ -378,6 +443,28 @@ public class Autonomous2023 extends LinearOpMode {
             linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
+
+    public void servo_up (double timeoutS){
+
+            servotargetleft=  servo1.getPosition();
+            servotargetright= servo2.getPosition();
+
+            servo1.setPosition(servotargetleft - 0.3);
+            servo2.setPosition(servotargetright + 0.3);
+
+    }
+
+    public boolean isopen(){
+        servotargetleft=  servo1.getPosition();
+        servotargetright= servo2.getPosition();
+
+        if(servotargetleft && servotargetright> 0){
+            return true;
+        }else{
+           return false;
+        }
+    }
+
 }
 
 

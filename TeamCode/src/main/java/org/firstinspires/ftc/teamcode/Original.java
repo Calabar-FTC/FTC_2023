@@ -81,7 +81,7 @@ public class Original extends LinearOpMode {
         leftDrive2 = hardwareMap.get(DcMotor.class, "left_drive2");
         rightDrive2 = hardwareMap.get(DcMotor.class, "right_drive2");
 
-        linslide_left = hardwareMap.get(DcMotor.class, "linear");
+        linslide_left = hardwareMap.get(DcMotor.class, "linear1");
         linslide_right = hardwareMap.get(DcMotor.class, "linear2");
         servo1 = hardwareMap.get(Servo.class, "lin-motor1");
         servo2 = hardwareMap.get(Servo.class, "lin-motor2");
@@ -103,6 +103,19 @@ public class Original extends LinearOpMode {
         servo1.setDirection(Servo.Direction.FORWARD);
         servo2.setDirection(Servo.Direction.REVERSE);
 
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -115,17 +128,18 @@ public class Original extends LinearOpMode {
 
             //DistanceSensor();
             //ColourSensor();
+            Mecanum_Drive();
             Intake();
             Linear_Slide();
-            Mecanum_Drive();
+
 
             telemetry.update();
         }
     }
 
     public void Mecanum_Drive() {
-        double right_power = gamepad1.right_stick_y;
-        double left_power = gamepad1.left_stick_y;
+        double right_power = -gamepad1.right_stick_y;
+        double left_power = -gamepad1.left_stick_y;
         boolean mecanumright = gamepad1.dpad_left;//makes robot move to the right side
         boolean mecanumleft = gamepad1.dpad_right;//makes robot move to the right side
 
@@ -157,12 +171,15 @@ public class Original extends LinearOpMode {
         }
 
         if ((!mecanumleft) && (!mecanumright)) {
-            leftDrive2.setPower(right_power);
-            rightDrive2.setPower(left_power);
-            leftDrive.setPower(right_power);
-            rightDrive.setPower(left_power);
+            leftDrive2.setPower(left_power);
+            rightDrive2.setPower(right_power);
+            leftDrive.setPower(left_power);
+            rightDrive.setPower(right_power);
 
         }
+
+        int l_pos = leftDrive.getCurrentPosition();
+        telemetry.addData("Motors", "left_motor - %d", l_pos);
     }
 
 
