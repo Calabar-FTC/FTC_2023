@@ -43,7 +43,7 @@ public class Autonomous2023 extends LinearOpMode {
     static final double COUNTS_PER_MOTOR_REV = 500;   // Ultra Planetary Motor Encoder
     static final double WHEEL_DIAMETER_CM = 9.8;     // Mecanum Wheel circumference cm
     static final double distance_per_rev = (WHEEL_DIAMETER_CM * Math.PI); //distance in cm
-    static final double DRIVE_SPEED = 0.5;
+    static final double DRIVE_SPEED = 1;
 
     int newLeftTarget;
     int newRightTarget;
@@ -66,11 +66,11 @@ public class Autonomous2023 extends LinearOpMode {
         leftDrive2 = hardwareMap.get(DcMotor.class, "left_drive2");
         rightDrive2 = hardwareMap.get(DcMotor.class, "right_drive2");
 
-        linslide_left = hardwareMap.get(DcMotor.class, "linear1");
-        linslide_right = hardwareMap.get(DcMotor.class, "linear2");
+        linslide_left = hardwareMap.get(DcMotor.class, "arm_right");
+        linslide_right = hardwareMap.get(DcMotor.class, "arm_left");
 
-        servo1 = hardwareMap.get(Servo.class, "lin-motor1");
-        servo2 = hardwareMap.get(Servo.class, "lin-motor2");
+        servo1 = hardwareMap.get(Servo.class, "claw_right");
+        servo2 = hardwareMap.get(Servo.class, "claw_left");
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
         sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
@@ -85,7 +85,7 @@ public class Autonomous2023 extends LinearOpMode {
         leftDrive2.setDirection(DcMotor.Direction.FORWARD);
         rightDrive2.setDirection(DcMotor.Direction.REVERSE);
 
-        linslide_left.setDirection(DcMotor.Direction.FORWARD);
+        linslide_left.setDirection(DcMotor.Direction.REVERSE);
         linslide_right.setDirection(DcMotor.Direction.FORWARD);
 
         servo1.setDirection(Servo.Direction.FORWARD);
@@ -106,12 +106,17 @@ public class Autonomous2023 extends LinearOpMode {
 
         waitForStart();
 
+        servo_up (5);
+        //Drive_Foward(DRIVE_SPEED, 320, 10);
+        //linslide_up(0.7,13, 10);
+        //Drive_backward(DRIVE_SPEED,70 , 10);
+        //Turn_right (DRIVE_SPEED, 30,10 );
+        //linslide_down(0.7,13, 10);
+        //Turn_left (DRIVE_SPEED, 70,10 );
 
-        //linslide_up(0.7,50000, 2);
-        //linslide_down(0.7,49000, 2);
-        Drive_Foward(DRIVE_SPEED, 100, 10);
-        Drive_backward(DRIVE_SPEED,100 , 10);
-        //Turn_right (DRIVE_SPEED, 900,2 );
+
+
+
         //Turn_left (DRIVE_SPEED, 900,2 );
         runtime.reset();
         telemetry.update();
@@ -208,12 +213,10 @@ public class Autonomous2023 extends LinearOpMode {
     public void Drive_backward(double speed, double distance, double timeoutS) {
 
         if (opModeIsActive()) {
-
-
             int distance_travel = (int) ((distance / distance_per_rev) * COUNTS_PER_MOTOR_REV);
             newLeftTarget = leftDrive.getCurrentPosition();
             newRightTarget = rightDrive.getCurrentPosition();
-            newLeftTarget2 = leftDrive.getCurrentPosition();
+            newLeftTarget2 = leftDrive2.getCurrentPosition();
             newRightTarget2 = rightDrive2.getCurrentPosition();
 
             leftDrive.setTargetPosition(newLeftTarget - distance_travel);
@@ -233,11 +236,9 @@ public class Autonomous2023 extends LinearOpMode {
             rightDrive2.setPower(Math.abs(speed));
 
 
-            while (opModeIsActive() && (runtime.seconds() < timeoutS))
-            {
+            while (opModeIsActive() && (runtime.seconds() < timeoutS)) {
 
-                if(leftDrive.getCurrentPosition() >= newLeftTarget +distance_travel)
-                {
+                if (leftDrive.getCurrentPosition() >= newLeftTarget + distance_travel) {
                     brake();
                     break;
                 }
@@ -257,17 +258,13 @@ public class Autonomous2023 extends LinearOpMode {
             rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
         }
     }
 
     public void Turn_left ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
-
-
-            int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
+            int distance_travel = (int) ((distance / distance_per_rev) * COUNTS_PER_MOTOR_REV);
             newLeftTarget = leftDrive.getCurrentPosition();
             newRightTarget = rightDrive.getCurrentPosition();
             newLeftTarget2 = leftDrive.getCurrentPosition();
@@ -315,12 +312,11 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
+
     public void Turn_right ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
-
-
-            int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
+            int distance_travel = (int) ((distance / distance_per_rev) * COUNTS_PER_MOTOR_REV);
             newLeftTarget = leftDrive.getCurrentPosition();
             newRightTarget = rightDrive.getCurrentPosition();
             newLeftTarget2 = leftDrive.getCurrentPosition();
@@ -368,15 +364,20 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void linslide_down ( double speed, double distance, double timeoutS){
+    public void linslide_up ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
-            int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
+            double COUNTS_PER_LIN_MOTOR_REV = 3000;   // Ultra Planetary Motor Encoder
+            double SPLOON_DIAMETER_CM = 3;     // Mecanum Wheel circumference cm
+            double distance_per_lin_rev = (SPLOON_DIAMETER_CM  * Math.PI); //distance in cm
+            double DRIVE_SPEED = 0.5;
+
+            int distance_travel = (int) ((distance / distance_per_lin_rev)* COUNTS_PER_LIN_MOTOR_REV);
             newLeftTarget = linslide_left.getCurrentPosition();
             newRightTarget = linslide_right.getCurrentPosition();
 
             linslide_left.setTargetPosition(newLeftTarget - distance_travel);
-            linslide_right.setTargetPosition(newRightTarget + distance_travel);
+            linslide_right.setTargetPosition(newRightTarget - distance_travel);
 
             linslide_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             linslide_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -407,15 +408,20 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void linslide_up ( double speed, double distance, double timeoutS){
+    public void linslide_down ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
-            int distance_travel = (int) (distance / distance_per_rev * COUNTS_PER_MOTOR_REV);
+            double COUNTS_PER_LIN_MOTOR_REV = 3000;   // Ultra Planetary Motor Encoder
+            double SPLOON_DIAMETER_CM = 3;     // Mecanum Wheel circumference cm
+            double distance_per_lin_rev = (SPLOON_DIAMETER_CM  * Math.PI); //distance in cm
+            double DRIVE_SPEED = 0.5;
+
+            int distance_travel = (int) ((distance / distance_per_lin_rev)* COUNTS_PER_LIN_MOTOR_REV);
             newLeftTarget = linslide_left.getCurrentPosition();
             newRightTarget = linslide_right.getCurrentPosition();
 
-            linslide_left.setTargetPosition(newLeftTarget - distance_travel);
-            linslide_right.setTargetPosition(newRightTarget + distance_travel);
+            linslide_left.setTargetPosition(newLeftTarget + distance_travel);
+            linslide_right.setTargetPosition(newRightTarget - distance_travel);
 
             linslide_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             linslide_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -425,7 +431,8 @@ public class Autonomous2023 extends LinearOpMode {
 
             while (opModeIsActive() && (runtime.seconds() < timeoutS)) {
 
-                if (linslide_left.getCurrentPosition() >= newLeftTarget + distance_travel) {
+                if (linslide_left.getCurrentPosition() >= newLeftTarget + distance_travel)
+                {
                     brake();
                     break;
                 }
@@ -441,22 +448,23 @@ public class Autonomous2023 extends LinearOpMode {
 
             linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         }
     }
-
     public void servo_up (double timeoutS){
 
             servotargetleft=  servo1.getPosition();
             servotargetright= servo2.getPosition();
 
-            servo1.setPosition(servotargetleft - 0.3);
-            servo2.setPosition(servotargetright + 0.3);
-
+            servo1.setPosition(servotargetleft - 0.1);
+            servo2.setPosition(servotargetright + 0.1);
     }
 
+    /**
     public boolean isopen(){
         servotargetleft=  servo1.getPosition();
         servotargetright= servo2.getPosition();
+
 
         if(servotargetleft && servotargetright> 0){
             return true;
@@ -464,6 +472,7 @@ public class Autonomous2023 extends LinearOpMode {
            return false;
         }
     }
+     **/
 
 }
 

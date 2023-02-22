@@ -64,9 +64,8 @@ public class Original extends LinearOpMode {
     public DcMotor  linslide_right = null;
     public Servo servo1;
     public Servo servo2;
-    //NormalizedColorSensor colorSensor;
-    //public DistanceSensor sensorRange;
-
+    public NormalizedColorSensor colorSensor;
+    public DistanceSensor sensorRange;
 
     @Override
     public void runOpMode() {
@@ -81,13 +80,14 @@ public class Original extends LinearOpMode {
         leftDrive2 = hardwareMap.get(DcMotor.class, "left_drive2");
         rightDrive2 = hardwareMap.get(DcMotor.class, "right_drive2");
 
-        linslide_left = hardwareMap.get(DcMotor.class, "linear1");
-        linslide_right = hardwareMap.get(DcMotor.class, "linear2");
-        servo1 = hardwareMap.get(Servo.class, "lin-motor1");
-        servo2 = hardwareMap.get(Servo.class, "lin-motor2");
+        linslide_left = hardwareMap.get(DcMotor.class, "arm_right");
+        linslide_right = hardwareMap.get(DcMotor.class, "arm_left");
 
-        //colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
-        //sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
+        servo1 = hardwareMap.get(Servo.class, "claw_right");
+        servo2 = hardwareMap.get(Servo.class, "claw_left");
+
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -98,39 +98,26 @@ public class Original extends LinearOpMode {
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive2.setDirection(DcMotor.Direction.FORWARD);
         rightDrive2.setDirection(DcMotor.Direction.REVERSE);
+
         linslide_left.setDirection(DcMotor.Direction.FORWARD);
         linslide_right.setDirection(DcMotor.Direction.FORWARD);
+
         servo1.setDirection(Servo.Direction.FORWARD);
         servo2.setDirection(Servo.Direction.REVERSE);
-
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
-
-
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            //DistanceSensor();
-            //ColourSensor();
             Mecanum_Drive();
             Intake();
             Linear_Slide();
+            DistanceSensor();
+            ColourSensor();
 
 
             telemetry.update();
@@ -178,10 +165,9 @@ public class Original extends LinearOpMode {
 
         }
 
-        int l_pos = leftDrive.getCurrentPosition();
-        telemetry.addData("Motors", "left_motor - %d", l_pos);
+//        int l_pos = leftDrive.getCurrentPosition();
+//        telemetry.addData("Motors", "left_motor - %d", l_pos);
     }
-
 
     public void Linear_Slide() {
         float right_trig = gamepad2.right_trigger;//makes linear slide go up
@@ -203,8 +189,13 @@ public class Original extends LinearOpMode {
         } else {
             linslide_left.setPower(0);
             linslide_right.setPower(0);
+
         }
+
+
         telemetry.addData("Power of linear slide",speedy);
+        int slide = linslide_left.getCurrentPosition();
+        telemetry.addData("Motors for linear slide", "left_motor - %d", slide);
     }
 
     public void Intake() {
@@ -212,8 +203,8 @@ public class Original extends LinearOpMode {
         boolean bump_left = gamepad2.x;//close claws
 
         if (bump_right) {
-            servo1.setPosition(0.3);
-            servo2.setPosition(0.3);
+            servo1.setPosition(0.1);
+            servo2.setPosition(0.1);
         }
 
         if (bump_left) {
@@ -222,15 +213,22 @@ public class Original extends LinearOpMode {
         }
     }
 
-/***
     public void ColourSensor() {
-
         final float[] hsvValues = new float[3];
         if (colorSensor instanceof SwitchableLight) {
             ((SwitchableLight)colorSensor).enableLight(true);
         }
-
         NormalizedRGBA colors = colorSensor.getNormalizedColors();
+
+        if((colors.red>colors.green) && (colors.red >colors.blue)){
+            servo1.setPosition(0.3);
+            servo2.setPosition(0.3);
+
+            sleep(3000);
+
+            servo1.setPosition(0);
+            servo2.setPosition(0);
+        }
 
         Color.colorToHSV(colors.toColor(), hsvValues);
         telemetry.addLine()
@@ -258,7 +256,9 @@ public class Original extends LinearOpMode {
     {
 
     }
- */
+
+
+
 
 
 }

@@ -173,11 +173,13 @@ public class DriverControl2023 extends LinearOpMode {
                boolean bump_left = gamepad2.x;//close claws
 
                if (bump_right) {
-                   config.servo.setPosition(0.5);
+                   config.servo1.setPosition(0.3);
+                   config.servo2.setPosition(0.3);
                }
 
                if (bump_left) {
-                   config.servo.setPosition(0);
+                   config.servo1.setPosition(0);
+                   config.servo2.setPosition(0);
                }
            }
 

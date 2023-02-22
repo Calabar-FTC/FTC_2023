@@ -22,7 +22,8 @@ public class MainConfig2023
      DcMotor rightDrive2 = null;
     DcMotor linslide_left = null;
     DcMotor  linslide_right = null;
-     Servo servo;
+     Servo servo1;
+    Servo servo2;
 
      HardwareMap hardMap;
      NormalizedColorSensor colorSensor;
@@ -37,23 +38,31 @@ public class MainConfig2023
         //colorSensor = this.hardMap.get(ColorSensor.class, "color_distance");
 
 
-        leftDrive = this.hardMap.get(DcMotor.class, "left_drive");
-        rightDrive = this.hardMap.get(DcMotor.class, "right_drive");
-        leftDrive2 = this.hardMap.get(DcMotor.class, "left_drive2");
-        rightDrive2 = this.hardMap.get(DcMotor.class, "right_drive2");
-        linslide_left = this.hardMap.get(DcMotor.class, "linear");
-        linslide_right = this.hardMap.get(DcMotor.class, "linear2");
-        servo = this.hardMap.get(Servo.class, "lin-motor");
+        leftDrive = hardMap.get(DcMotor.class, "left_drive");
+        rightDrive = hardMap.get(DcMotor.class, "right_drive");
+        leftDrive2 = hardMap.get(DcMotor.class, "left_drive2");
+        rightDrive2 = hardMap.get(DcMotor.class, "right_drive2");
+
+        linslide_left = hardMap.get(DcMotor.class, "arm_right");
+        linslide_right = hardMap.get(DcMotor.class, "arm_left");
+
+        servo1 = hardMap.get(Servo.class, "claw_right");
+        servo2 = hardMap.get(Servo.class, "claw_left");
+
+        colorSensor = hardMap.get(NormalizedColorSensor.class, "sensor_color");
+        //sensorRange = hardMap.get(DistanceSensor.class, "sensor_range");
+
 
 
         leftDrive.setDirection(DcMotor.Direction.FORWARD);
         rightDrive.setDirection(DcMotor.Direction.REVERSE);
         leftDrive2.setDirection(DcMotor.Direction.FORWARD);
         rightDrive2.setDirection(DcMotor.Direction.REVERSE);
-        linslide_left.setDirection(DcMotor.Direction.FORWARD);
+        linslide_left.setDirection(DcMotor.Direction.REVERSE);
         linslide_right.setDirection(DcMotor.Direction.FORWARD);
-        servo.setDirection(Servo.Direction.FORWARD);
 
+        servo1.setDirection(Servo.Direction.FORWARD);
+        servo2.setDirection(Servo.Direction.FORWARD);
 
         leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
