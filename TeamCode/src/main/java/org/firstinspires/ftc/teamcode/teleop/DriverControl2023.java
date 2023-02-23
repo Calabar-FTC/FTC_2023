@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MainConfig2023;
 
 
@@ -99,9 +100,15 @@ public class DriverControl2023 extends LinearOpMode {
 
             //check for any intake commands
             Intake();
+
+            //Display the color sensor values on the screen
             ColourSensor();
 
+            // display the magnetics switch values
             MLS();
+
+            //Check if the override buton is pressed for the robot
+            OverideAllAutomationCheck();
 
             // update the screen with the new data
             telemetry.addData("Status", "Run Time: " + config.runtime.toString());
@@ -158,14 +165,16 @@ public class DriverControl2023 extends LinearOpMode {
          * DRIVE - GT
          * ========================
          * */
-        // coming soon
+//        RacingGameControls();
 
         /*
          * ========================
          * Speed Limiter
          * ========================
          * */
+        RobotDriveTransmission();
 
+        // Set the power to the wheels
         config.rightDrive.setPower(config.right_power_1);
         config.rightDrive2.setPower(config.right_power_2);
         config.leftDrive.setPower(config.left_power_1);
@@ -189,22 +198,25 @@ public class DriverControl2023 extends LinearOpMode {
         config.right_trig = gamepad2.right_trigger;//makes linear slide go up
         config.left_trig = gamepad2.left_trigger;//makes linear slide go down
 
-        config.m_switch=config.MagneticLimitSwitch.getState();
-        config.claw=config.isopen();
-
-
+        /*
+         * ========================
+         * Control the lift Going
+         * Up and down
+         * ========================
+         * */
         if (config.right_trig > 0.5) {
-            //if((config.m_switch=false) && (config.claw=false)) {
+//            if((!config.m_switch) && (!config.claw_state)) {
                 //slide up
                 config.slide_power_1 = config.slide_speedy;
                 config.slide_power_2 = config.slide_speedy;
-
+//            }
 
         } else if (config.left_trig > 0.5) {
             //slide down
-            config.slide_power_1 = -config.slide_speedy;
-            config.slide_power_2 = -config.slide_speedy;
-
+//            if((config.slide_1_position > 0 && config.slide_2_position > 0)){ // Stops the slide from going further down if its at the bottom
+                config.slide_power_1 = -config.slide_speedy;
+                config.slide_power_2 = -config.slide_speedy;
+//            }
         } else {
             // stop and brake
             config.slide_power_1 = 0;
@@ -212,6 +224,14 @@ public class DriverControl2023 extends LinearOpMode {
         }
 
 
+        /*
+         * ========================
+         * Speed Limiter
+         * ========================
+         * */
+        RobotLiftTransmission();
+
+        // Set the power to the lift
         config.linslide_left.setPower(-config.slide_power_1);
         config.linslide_right.setPower(-config.slide_power_2);
 
@@ -234,6 +254,9 @@ public class DriverControl2023 extends LinearOpMode {
            // close intake
            config.claw_close();
        }
+
+       // Telemetry the claws status
+       telemetry.addData("Intake",config.claw_state ? "OPEN" : "CLOSE");
    }
 
     public void ColourSensor() {
@@ -262,13 +285,90 @@ public class DriverControl2023 extends LinearOpMode {
     public void MLS() {
 
         // set the digital channel to input.
-        if (config.MagneticLimitSwitch.getState() == true) {
-
-            telemetry.addData("Digital Touch", "Linear slide is up");
+        if (config.MagneticLimitSwitch.getState()) {
+            config.m_switch = false;
+            telemetry.addData("Magnetic Switch", "Linear slide is up");
         } else {
-            telemetry.addData("Digital Touch", "Linear slide is down");
+            config.m_switch = true;
+            telemetry.addData("Magnetic Switch", "Linear slide is down");
         }
-        telemetry.update();
+    }
+
+    public void RacingGameControls(){
+        if(gamepad1.left_stick_x == 0) {
+            if (gamepad1.right_trigger > 0) {
+                // driving forward
+                config.right_power_1 = gamepad1.right_trigger;
+                config.right_power_2 = gamepad1.right_trigger;
+                config.left_power_1 = gamepad1.right_trigger;
+                config.left_power_2= gamepad1.right_trigger;
+
+            } else if (gamepad1.left_trigger > 0) {
+                /* reversing the robot */
+                config.right_power_1 = -gamepad1.left_trigger;
+                config.right_power_2 = -gamepad1.left_trigger;
+                config.left_power_1 = -gamepad1.left_trigger;
+                config.left_power_2= -gamepad1.left_trigger;
+
+            }
+        }else{
+            // Turning the robot
+            config.right_power_1 = -gamepad1.left_stick_x;
+            config.right_power_2 = -gamepad1.left_stick_x;
+            config.left_power_1 = gamepad1.left_stick_x;
+            config.left_power_2= gamepad1.left_stick_x;
+        }
+    }
+
+    public void RobotDriveTransmission(){
+        /*
+        * This would allow you to reduce the speed of the robot
+        * using the selection of a few buttons
+        * */
+
+        if (gamepad1.a){
+            config.drive_speed_transmission_limiter = 0.5;
+        } else if (gamepad1.b) {
+            config.drive_speed_transmission_limiter = 0.25;
+        } else if (gamepad1.x) {
+            config.drive_speed_transmission_limiter = 1;
+        }
+
+        // reduce the speed with the limiter
+        config.right_power_1 = config.right_power_1 * config.drive_speed_transmission_limiter;
+        config.right_power_2 = config.right_power_2 * config.drive_speed_transmission_limiter;
+        config.left_power_1 = config.left_power_1 * config.drive_speed_transmission_limiter;
+        config.left_power_2= config.left_power_2 * config.drive_speed_transmission_limiter;
+    }
+
+    public void RobotLiftTransmission(){
+        /*
+         * This would allow you to reduce the speed of the robot lift
+         * using the selection of a few buttons
+         * */
+
+        if (gamepad2.dpad_up){
+            config.lift_speed_transmission_limiter = 0.1;
+        } else if (gamepad2.dpad_right) {
+            config.lift_speed_transmission_limiter = 0.5;
+        } else if (gamepad2.dpad_down) {
+            config.lift_speed_transmission_limiter = 0.25;
+        }
+
+        // reduce the speed with the limiter
+        config.slide_power_1 = config.slide_power_1 * config.lift_speed_transmission_limiter;
+        config.slide_power_2 = config.slide_power_2 * config.lift_speed_transmission_limiter;
+    }
+
+    public void OverideAllAutomationCheck(){
+        if(gamepad1.y || gamepad2.y){
+            config.override_all_automation = true;
+        } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
+            config.override_all_automation = false;
+        }
+
+        // Show the override status on the screen
+        telemetry.addData("Automation Override", config.override_all_automation? "ON": "OFF");
     }
 
 }

@@ -66,10 +66,16 @@ public class MainConfig2023 {
     //robot controller variables
     public boolean mecanumright, mecanumleft = false;
     public boolean bump_right, bump_left = false;
-    public boolean m_switch=false, claw;
+    public boolean m_switch, claw_state=false;
     public float right_trig, left_trig = 0;
     public double servotargetleft;
     public double servotargetright;
+
+    public double drive_speed_transmission_limiter = 0;
+    public double lift_speed_transmission_limiter = 0;
+
+    public boolean override_all_automation = false;
+
 
     public void TotalHardwareMap (HardwareMap hardMap, Telemetry telemetry)
     {
@@ -119,12 +125,12 @@ public class MainConfig2023 {
 //        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
-//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         MagneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
@@ -132,6 +138,8 @@ public class MainConfig2023 {
         mecanum_power = 1;
         drive_speed = 1;
         slide_speedy = 0.7;
+        drive_speed_transmission_limiter = 0.8;
+        lift_speed_transmission_limiter = 1;
     }
 
     public void WheelNuetral()
@@ -182,15 +190,13 @@ public class MainConfig2023 {
     public void claw_open(){
         claw_right.setPosition(0.4);
         claw_left.setPosition(0.4);
-        claw = true;
-        telemetry.addData("Intake","OPEN");
+        claw_state = true;
     }
 
     public void claw_close(){
         claw_right.setPosition(0);
         claw_left.setPosition(0);
-        claw = false;
-        telemetry.addData("Intake","CLOSED");
+        claw_state = false;
     }
 
     public boolean isopen(){
