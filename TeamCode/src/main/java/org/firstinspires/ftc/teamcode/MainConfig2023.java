@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MainConfig2023 {
     // Declare OpMode members.
@@ -22,8 +25,12 @@ public class MainConfig2023 {
 
     public NormalizedColorSensor colorSensor;
     public DistanceSensor sensorRange;
+    public DigitalChannel MagneticLimitSwitch;  // Hardware Device Object
+
 
     public HardwareMap hardMap;
+
+    public Telemetry telemetry;
 
     // Variables to configure the robot and to assist with functionality
     public static final double WHEELS_COUNTS_PER_MOTOR_REV = 500; // Ultra Planetary Motor Encoder
@@ -48,6 +55,7 @@ public class MainConfig2023 {
     public double slide_speedy = 0;
     public double slide_power_1, slide_power_2 = 0;
 
+
     public int right_1_wheel_position, right_2_wheel_position, left_1_wheel_position, left_2_wheel_position = 0;
     public int right_1_wheel_target, right_2_wheel_target, left_1_wheel_target, left_2_wheel_target = 0;
 
@@ -58,14 +66,16 @@ public class MainConfig2023 {
     //robot controller variables
     public boolean mecanumright, mecanumleft = false;
     public boolean bump_right, bump_left = false;
+    public boolean m_switch=false, claw;
     public float right_trig, left_trig = 0;
+    public double servotargetleft;
+    public double servotargetright;
 
-
-
-    public void TotalHardwareMap (HardwareMap hardMap)
+    public void TotalHardwareMap (HardwareMap hardMap, Telemetry telemetry)
     {
         // Connects the main config hardware map with the running hardwaremap
         this.hardMap = hardMap;
+        this.telemetry = telemetry;
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -83,6 +93,7 @@ public class MainConfig2023 {
 
         colorSensor = this.hardMap.get(NormalizedColorSensor.class, "sensor_color");
         sensorRange = hardMap.get(DistanceSensor.class, "sensor_color");
+        MagneticLimitSwitch = hardMap.get(DigitalChannel.class, "Mag_Switch");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -101,24 +112,26 @@ public class MainConfig2023 {
         claw_left.setDirection(Servo.Direction.REVERSE);
 
         // Reset the encoders for all the motors to run at a constant speed
-        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        MagneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         // Initialize variables
         mecanum_power = 1;
         drive_speed = 1;
-        slide_speedy = 1;
+        slide_speedy = 0.7;
     }
 
     public void WheelNuetral()
@@ -164,6 +177,33 @@ public class MainConfig2023 {
 
         linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
     }
+
+    public void claw_open(){
+        claw_right.setPosition(0.4);
+        claw_left.setPosition(0.4);
+        claw = true;
+        telemetry.addData("Intake","OPEN");
+    }
+
+    public void claw_close(){
+        claw_right.setPosition(0);
+        claw_left.setPosition(0);
+        claw = false;
+        telemetry.addData("Intake","CLOSED");
+    }
+
+    public boolean isopen(){
+        servotargetleft= claw_left.getPosition();
+        servotargetright=claw_right.getPosition();
+
+        if( (servotargetleft< 0.4) && (servotargetright>0.4))
+        {
+            return true;
+        }else
+        {
+            return false;
+        }
+    }
+
 }

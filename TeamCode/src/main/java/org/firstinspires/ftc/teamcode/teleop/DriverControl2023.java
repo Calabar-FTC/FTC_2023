@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import android.graphics.Color;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
@@ -77,7 +78,7 @@ public class DriverControl2023 extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize all the robot configurations
-        config.TotalHardwareMap(hardwareMap);
+        config.TotalHardwareMap(hardwareMap, telemetry);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -98,7 +99,9 @@ public class DriverControl2023 extends LinearOpMode {
 
             //check for any intake commands
             Intake();
-//            ColourSensor();
+            ColourSensor();
+
+            MLS();
 
             // update the screen with the new data
             telemetry.addData("Status", "Run Time: " + config.runtime.toString());
@@ -186,10 +189,16 @@ public class DriverControl2023 extends LinearOpMode {
         config.right_trig = gamepad2.right_trigger;//makes linear slide go up
         config.left_trig = gamepad2.left_trigger;//makes linear slide go down
 
+        config.m_switch=config.MagneticLimitSwitch.getState();
+        config.claw=config.isopen();
+
+
         if (config.right_trig > 0.5) {
-            //slide up
-            config.slide_power_1 = config.slide_speedy;
-            config.slide_power_2 = config.slide_speedy;
+            //if((config.m_switch=false) && (config.claw=false)) {
+                //slide up
+                config.slide_power_1 = config.slide_speedy;
+                config.slide_power_2 = config.slide_speedy;
+
 
         } else if (config.left_trig > 0.5) {
             //slide down
@@ -219,18 +228,13 @@ public class DriverControl2023 extends LinearOpMode {
 
        if ( config.bump_right) {
            // open intake
-           config.claw_right.setPosition(0.1);
-           config.claw_left.setPosition(0.1);
-           telemetry.addData("Intake","OPEN");
+          config.claw_open();
 
        }else if (config.bump_left) {
            // close intake
-           config.claw_right.setPosition(0);
-           config.claw_left.setPosition(0);
-           telemetry.addData("Intake","CLOSED");
+           config.claw_close();
        }
    }
-
 
     public void ColourSensor() {
 
@@ -254,5 +258,18 @@ public class DriverControl2023 extends LinearOpMode {
         telemetry.addData("Alpha", "%.3f", colors.alpha);
 
     }
+
+    public void MLS() {
+
+        // set the digital channel to input.
+        if (config.MagneticLimitSwitch.getState() == true) {
+
+            telemetry.addData("Digital Touch", "Linear slide is up");
+        } else {
+            telemetry.addData("Digital Touch", "Linear slide is down");
+        }
+        telemetry.update();
+    }
+
 }
 

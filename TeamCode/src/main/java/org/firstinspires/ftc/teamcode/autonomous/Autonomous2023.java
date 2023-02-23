@@ -16,7 +16,7 @@ public class Autonomous2023 extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Initialize all the robot configurations
-        config.TotalHardwareMap(hardwareMap);
+        config.TotalHardwareMap(hardwareMap, telemetry);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -36,7 +36,7 @@ public class Autonomous2023 extends LinearOpMode {
             telemetry.update();
             // The sequence of commands to be completed in autonomous
 
-            servo_up (5);
+            servo_claw (5);
             //Drive_Foward(DRIVE_SPEED, 320, 10);
             //linslide_up(0.7,13, 10);
             //Drive_backward(DRIVE_SPEED,70 , 10);
@@ -46,7 +46,6 @@ public class Autonomous2023 extends LinearOpMode {
             //Turn_left (DRIVE_SPEED, 900,2 );
         }
     }
-
 
 
     public void Drive_Foward(double speed, double distance, double timeoutS) {
@@ -147,7 +146,7 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void Turn_left ( double speed, double distance, double timeoutS){
+    public void MecanumTurn_left ( double speed, double distance, double timeoutS){
 
         if (opModeIsActive()) {
             int distance_to_travel = (int) (distance * config.MECANUM_TURN_DISTANCE_RATIO);
@@ -323,28 +322,18 @@ public class Autonomous2023 extends LinearOpMode {
         }
     }
 
-    public void servo_up (double timeoutS){
-        double servotargetleft=  config.claw_left.getPosition();
-        double servotargetright= config.claw_right.getPosition();
+    public void servo_claw (double timeoutS){
+        config.servotargetleft=  config.claw_left.getPosition();
+        config.servotargetright= config.claw_right.getPosition();
 
-        config.claw_left.setPosition(servotargetleft - 0.1);
-        config.claw_right.setPosition(servotargetright + 0.1);
+        config.claw_left.setPosition(config.servotargetleft - 0.1);
+        config.claw_right.setPosition(config.servotargetright + 0.1);
+
+        sleep(3000);
+
+        config.claw_left.setPosition(0);
+        config.claw_right.setPosition(0);
     }
-
-    /**
-    public boolean isopen(){
-        servotargetleft=  servo1.getPosition();
-        servotargetright= servo2.getPosition();
-
-
-        if(servotargetleft && servotargetright> 0){
-            return true;
-        }else{
-           return false;
-        }
-    }
-     **/
-
 }
 
 
