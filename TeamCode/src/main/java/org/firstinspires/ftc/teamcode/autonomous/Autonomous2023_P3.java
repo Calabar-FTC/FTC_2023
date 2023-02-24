@@ -1,22 +1,19 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import java.lang.Thread;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.teamcode.MainConfig2023;
 
 
-@Autonomous(name="Autonomous baby", group="FTC-2023-Calabar")
-public class Autonomous2023 extends LinearOpMode {
+@Autonomous(name="Autonomous P3", group="FTC-2023-Calabar")
+public class Autonomous2023_P3 extends LinearOpMode {
 
     // Declare the main configurations for the code
     private MainConfig2023 config = new MainConfig2023();
 
-    int signal_sleeve_position = 0;
+    int signal_sleeve_position = 3;
 
     @Override
     public void runOpMode() {
@@ -46,7 +43,8 @@ public class Autonomous2023 extends LinearOpMode {
 
         Drive(0.3,5,1); // get closer to cone to adjust for error
 
-        DetectSignalSymbol(5); // detect the beacon color
+//        DetectSignalSymbol(5); // detect the beacon color
+        config.delay(1); // wait for a second
 
         Drive(config.drive_speed,20,5); // Center the robot in position
 

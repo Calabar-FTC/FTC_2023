@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import java.lang.Thread;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -37,16 +39,14 @@ public class MainConfig2023 {
     public static final double WHEELS_COUNTS_PER_MOTOR_REV = 500; // Ultra Planetary Motor Encoder
     public static double WHEEL_DIAMETER_CM = 9.8; // Mecanum Wheel circumference cm
     public static final double DISTANCE_PER_REV = (WHEEL_DIAMETER_CM * Math.PI); //distance travel in cm
+
     public static final double DRIVE_DISTANCE_RATIO = WHEELS_COUNTS_PER_MOTOR_REV/DISTANCE_PER_REV;
-    public static final double MECANUM_TURN_DISTANCE_RATIO = WHEELS_COUNTS_PER_MOTOR_REV/DISTANCE_PER_REV;
+    public static final double MECANUM_TURN_DISTANCE_RATIO = (WHEELS_COUNTS_PER_MOTOR_REV/DISTANCE_PER_REV)*2;
 
     public static final double COUNTS_PER_LIN_MOTOR_REV = 3000;  //  Planetary Motor Encoder
     public static final double SPLOON_DIAMETER_CM = 3;     // lift spool circumference cm
     public static final double distance_per_lin_rev = (SPLOON_DIAMETER_CM  * Math.PI); //distance in cm
     public static final double LIFT_DISTANCE_RATIO = COUNTS_PER_LIN_MOTOR_REV/distance_per_lin_rev;
-
-
-
 
 
     // Robot hardware variables
@@ -55,7 +55,6 @@ public class MainConfig2023 {
     public double drive_speed = 0;
     public double slide_speedy = 0;
     public double slide_power_1, slide_power_2 = 0;
-
 
     public int right_1_wheel_position, right_2_wheel_position, left_1_wheel_position, left_2_wheel_position = 0;
     public int right_1_wheel_target, right_2_wheel_target, left_1_wheel_target, left_2_wheel_target = 0;
@@ -75,11 +74,9 @@ public class MainConfig2023 {
     public double drive_speed_transmission_limiter = 0;
     public double lift_speed_transmission_limiter = 0;
 
+    public NormalizedRGBA colors = null;
+
     public boolean override_all_automation = false;
-
-    NormalizedRGBA colors = colorSensor.getNormalizedColors();
-
-
 
     public void TotalHardwareMap (HardwareMap hardMap, Telemetry telemetry)
     {
@@ -122,20 +119,21 @@ public class MainConfig2023 {
         claw_left.setDirection(Servo.Direction.REVERSE);
 
         // Reset the encoders for all the motors to run at a constant speed
-//        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        leftDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        rightDrive2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDrive2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linslide_left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linslide_right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Set the mode for magnetic switch
         MagneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         // Initialize variables
@@ -217,6 +215,15 @@ public class MainConfig2023 {
         }else
         {
             return false;
+        }
+    }
+
+    public void delay(double seconds){
+        int mil_sec = Math.abs((int)(seconds * 1000));
+        try {
+            Thread.sleep(mil_sec);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

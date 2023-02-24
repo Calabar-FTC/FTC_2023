@@ -83,8 +83,6 @@ public class DriverControl2023 extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -102,9 +100,15 @@ public class DriverControl2023 extends LinearOpMode {
 
             //check for any intake commands
             Intake();
-            ColourSensor();
 
+            // Show color sensor values
+//            ColorSensor();
+
+            // Magnetic Limit switch
             MLS();
+
+            // Check if the override button is pressed
+            OverideAllAutomationCheck();
 
             // update the screen with the new data
             telemetry.addData("Status", "Run Time: " + config.runtime.toString());
@@ -203,18 +207,18 @@ public class DriverControl2023 extends LinearOpMode {
          * ========================
          * */
         if (config.right_trig > 0.5) {
-//            if((!config.m_switch) && (!config.claw_state)) {
+            if(((!config.m_switch) && (!config.claw_state)) || config.override_all_automation) { // only allow the slide to lift if the claw is closed if its at the bottom
                 //slide up
                 config.slide_power_1 = config.slide_speedy;
                 config.slide_power_2 = config.slide_speedy;
-//            }
+            }
 
         } else if (config.left_trig > 0.5) {
             //slide down
-//            if((config.slide_1_position > 0 && config.slide_2_position > 0)){ // Stops the slide from going further down if its at the bottom
+            if((config.slide_1_position > 0 && config.slide_2_position > 0) || config.override_all_automation){ // Stops the slide from going further down if its at the bottom
                 config.slide_power_1 = -config.slide_speedy;
                 config.slide_power_2 = -config.slide_speedy;
-//            }
+            }
         } else {
             // stop and brake
             config.slide_power_1 = 0;
@@ -257,7 +261,7 @@ public class DriverControl2023 extends LinearOpMode {
        telemetry.addData("Intake",config.claw_state ? "OPEN" : "CLOSE");
    }
 
-    public void ColourSensor() {
+    public void ColorSensor() {
 
         final float[] hsvValues = new float[3];
         if (config.colorSensor instanceof SwitchableLight) {
@@ -325,11 +329,11 @@ public class DriverControl2023 extends LinearOpMode {
         * using the selection of a few buttons
         * */
 
-        if (gamepad1.a){
+        if (gamepad1.b){
             config.drive_speed_transmission_limiter = 0.5;
-        } else if (gamepad1.b) {
+        } else if (gamepad1.a) {
             config.drive_speed_transmission_limiter = 0.25;
-        } else if (gamepad1.x) {
+        } else if (gamepad1.y) {
             config.drive_speed_transmission_limiter = 1;
         }
 
@@ -360,7 +364,7 @@ public class DriverControl2023 extends LinearOpMode {
     }
 
     public void OverideAllAutomationCheck(){
-        if(gamepad1.y || gamepad2.y){
+        if(gamepad1.right_bumper || gamepad2.right_bumper){
             config.override_all_automation = true;
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             config.override_all_automation = false;
