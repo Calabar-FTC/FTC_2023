@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -62,19 +63,22 @@ public class MainConfig2023 {
     public int slide_1_position, slide_2_position = 0;
     public int slide_1_target, slide_2_target = 0;
 
+    public int servotargetleft, servotargetright;
+
 
     //robot controller variables
     public boolean mecanumright, mecanumleft = false;
     public boolean bump_right, bump_left = false;
     public boolean m_switch, claw_state=false;
     public float right_trig, left_trig = 0;
-    public double servotargetleft;
-    public double servotargetright;
 
     public double drive_speed_transmission_limiter = 0;
     public double lift_speed_transmission_limiter = 0;
 
     public boolean override_all_automation = false;
+
+    NormalizedRGBA colors = colorSensor.getNormalizedColors();
+
 
 
     public void TotalHardwareMap (HardwareMap hardMap, Telemetry telemetry)
@@ -125,21 +129,25 @@ public class MainConfig2023 {
 //        linslide_left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rightDrive2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        linslide_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        linslide_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         MagneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         // Initialize variables
         mecanum_power = 1;
-        drive_speed = 1;
+        drive_speed = 0.8;
         slide_speedy = 0.7;
         drive_speed_transmission_limiter = 0.8;
         lift_speed_transmission_limiter = 1;
+
+        //Initialize sensors and motors
+        // open the claw before the start
+        claw_open();
     }
 
     public void WheelNuetral()
@@ -200,10 +208,10 @@ public class MainConfig2023 {
     }
 
     public boolean isopen(){
-        servotargetleft= claw_left.getPosition();
-        servotargetright=claw_right.getPosition();
+        servotargetleft= (int) claw_left.getPosition();
+        servotargetright=(int) claw_right.getPosition();
 
-        if( (servotargetleft< 0.4) && (servotargetright>0.4))
+        if( (servotargetleft<0.4) && (servotargetright<0.4))
         {
             return true;
         }else

@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import org.firstinspires.ftc.teamcode.MainConfig2023;
 
 
@@ -83,6 +83,8 @@ public class DriverControl2023 extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -100,15 +102,9 @@ public class DriverControl2023 extends LinearOpMode {
 
             //check for any intake commands
             Intake();
-
-            //Display the color sensor values on the screen
             ColourSensor();
 
-            // display the magnetics switch values
             MLS();
-
-            //Check if the override buton is pressed for the robot
-            OverideAllAutomationCheck();
 
             // update the screen with the new data
             telemetry.addData("Status", "Run Time: " + config.runtime.toString());
@@ -198,6 +194,8 @@ public class DriverControl2023 extends LinearOpMode {
         config.right_trig = gamepad2.right_trigger;//makes linear slide go up
         config.left_trig = gamepad2.left_trigger;//makes linear slide go down
 
+        int linear_up= config.slide_1_target = config.linslide_right.getCurrentPosition();
+        telemetry.addData("Number of ticks %i",linear_up);
         /*
          * ========================
          * Control the lift Going
@@ -292,6 +290,7 @@ public class DriverControl2023 extends LinearOpMode {
             config.m_switch = true;
             telemetry.addData("Magnetic Switch", "Linear slide is down");
         }
+        telemetry.update();
     }
 
     public void RacingGameControls(){
@@ -348,7 +347,7 @@ public class DriverControl2023 extends LinearOpMode {
          * */
 
         if (gamepad2.dpad_up){
-            config.lift_speed_transmission_limiter = 0.1;
+            config.lift_speed_transmission_limiter = 1;
         } else if (gamepad2.dpad_right) {
             config.lift_speed_transmission_limiter = 0.5;
         } else if (gamepad2.dpad_down) {
