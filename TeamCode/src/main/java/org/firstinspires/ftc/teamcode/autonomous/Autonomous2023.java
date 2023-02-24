@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.teamcode.MainConfig2023;
 
 
 @Autonomous(name="Autonomous baby", group="FTC-2023-Calabar")
 public class Autonomous2023 extends LinearOpMode {
-
 
 
     // Declare the main configurations for the code
@@ -21,6 +21,7 @@ public class Autonomous2023 extends LinearOpMode {
     public void runOpMode() {
         // Initialize all the robot configurations
         config.TotalHardwareMap(hardwareMap, telemetry);
+        NormalizedRGBA colors = config.colorSensor.getNormalizedColors();
 
         config.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         config.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -50,21 +51,26 @@ public class Autonomous2023 extends LinearOpMode {
          * SEQUENCE
          * ========================
          * */
+
+        // The sequence of commands to be completed in autonomous
+        Drive(1,80,5);
+
+        //Red is to move third position-move to the right
+        //Blue is to move to the second position-stay were you are
+        // Green is to move to the first position-move to the left
+        //Each of the sqaure on the field are 60.96cm
+        if((colors.red>colors.green) && (colors.red >colors.blue))
+        {
+            MecanumTurn_right(1,30,5);
+        }else if((colors.green>colors.red) && (colors.green>colors.blue))
+        {
+            MecanumTurn_left(1,30,5);
+        }
+
+
+
         telemetry.addData("Status", "Running");
         telemetry.update();
-        // The sequence of commands to be completed in autonomous
-
-        Drive(1,120,5);
-        MecanumTurn_left(1,120,5);
-
-//            if((config.color.red >config.color.green)&&(config.color.red >config.color.green){
-//                MecanumTurn_left(1,120,5);
-//
-//            }
-        if (opModeIsActive()) {
-
-
-        }
     }
 
     public void Drive(double speed, double distance, double timeoutS) {
