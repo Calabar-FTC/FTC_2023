@@ -90,13 +90,13 @@ public class DriverControl2023 extends LinearOpMode {
         config.runtime.reset();
 
         while (opModeIsActive()) {
-            telemetry.addData("Status", "Running");
+            //telemetry.addData("Status", "Running");
 
             // check for any commands for the chassis and driving
-            Mecanum_Drive();
+            //Mecanum_Drive();
 
             //check for any lift commands
-            Linear_Slide();
+            //Linear_Slide();
 
             //check for any intake commands
             Intake();
@@ -107,11 +107,13 @@ public class DriverControl2023 extends LinearOpMode {
             // Magnetic Limit switch
             MLS();
 
+            ColorSensor();
+
             // Check if the override button is pressed
             OverideAllAutomationCheck();
 
             // update the screen with the new data
-            telemetry.addData("Status", "Run Time: " + config.runtime.toString());
+            //telemetry.addData("Status", "Run Time: " + config.runtime.toString());
             telemetry.update();
         }
     }
@@ -206,16 +208,23 @@ public class DriverControl2023 extends LinearOpMode {
          * Up and down
          * ========================
          * */
+
         if (config.right_trig > 0.5) {
-            if(((!config.m_switch) && (!config.claw_state)) || config.override_all_automation) { // only allow the slide to lift if the claw is closed if its at the bottom
-                //slide up
+            //slide up
+            if((config.m_switch) || (config.override_all_automation)){ // only allow the slide to lift if the claw is closed if its at the bottom
+                if ((!config.claw_state)|| (config.override_all_automation)) {
+                    config.slide_power_1 = config.slide_speedy;
+                    config.slide_power_2 = config.slide_speedy;
+                }
+            }else{
                 config.slide_power_1 = config.slide_speedy;
                 config.slide_power_2 = config.slide_speedy;
             }
 
-        } else if (config.left_trig > 0.5) {
+
+        }else if (config.left_trig > 0.5) {
             //slide down
-            if((config.slide_1_position > 0 && config.slide_2_position > 0) || config.override_all_automation){ // Stops the slide from going further down if its at the bottom
+            if((config.slide_1_position < 0 ) || config.override_all_automation) { // Stops the slide from going further down if its at the bottom
                 config.slide_power_1 = -config.slide_speedy;
                 config.slide_power_2 = -config.slide_speedy;
             }
@@ -294,7 +303,6 @@ public class DriverControl2023 extends LinearOpMode {
             config.m_switch = true;
             telemetry.addData("Magnetic Switch", "Linear slide is down");
         }
-        telemetry.update();
     }
 
     public void RacingGameControls(){

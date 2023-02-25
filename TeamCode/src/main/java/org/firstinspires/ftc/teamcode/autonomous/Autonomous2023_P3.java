@@ -23,7 +23,6 @@ public class Autonomous2023_P3 extends LinearOpMode {
         SetEncoderMode();
 
         telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
         waitForStart();
 
@@ -39,7 +38,7 @@ public class Autonomous2023_P3 extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
         // The sequence of commands to be completed in autonomous
-        Drive(config.drive_speed,80,5); // move to the cone
+        Drive(config.drive_speed,40,5); // move to the cone
 
         Drive(0.3,5,1); // get closer to cone to adjust for error
 
@@ -51,14 +50,16 @@ public class Autonomous2023_P3 extends LinearOpMode {
         //move to the position base on the signal sleeve
         switch (signal_sleeve_position){
             case 1:
-                MecanumTurn_left(1,30,5);
+                //Drive(config.drive_speed,5,5); // Center the robot in position
+                MecanumTurn_left(0.7,60,5);
                 telemetry.addData("POSITION", "DETECTED 1");
                 break;
             case 2:
                 telemetry.addData("POSITION", "DETECTED 2");
                 break;
             case 3:
-                MecanumTurn_right(1,30,5);
+                //Drive(config.drive_speed,5,5); // Center the robot in position
+                MecanumTurn_right(0.7,30,5);
                 telemetry.addData("POSITION", "DETECTED 3");
                 break;
             default:
@@ -66,7 +67,6 @@ public class Autonomous2023_P3 extends LinearOpMode {
         }
 
         telemetry.addData("AUTONOMOUS", "ROBOT JOB COMPLETED");
-        telemetry.update();
     }
 
     public void SetEncoderMode(){
@@ -117,7 +117,7 @@ public class Autonomous2023_P3 extends LinearOpMode {
 
                 telemetry.addData("Running to", " %7d :%7d", config.right_1_wheel_target, config.left_1_wheel_target);
                 telemetry.addData("Currently at", " at %5d :%5d", config.leftDrive.getCurrentPosition(), config.rightDrive.getCurrentPosition());
-                telemetry.update();
+
             }
 
             // Stop all motion;
@@ -132,10 +132,10 @@ public class Autonomous2023_P3 extends LinearOpMode {
 
 
             // Set the the new target distance
-            config.right_1_wheel_target = config.rightDrive.getCurrentPosition() - distance_to_travel;
-            config.right_2_wheel_target = config.rightDrive2.getCurrentPosition() + distance_to_travel;
-            config.left_1_wheel_target = config.leftDrive.getCurrentPosition() + distance_to_travel;
-            config.left_2_wheel_target = config.leftDrive2.getCurrentPosition() - distance_to_travel;
+            config.right_1_wheel_target = config.rightDrive.getCurrentPosition() + distance_to_travel;
+            config.right_2_wheel_target = config.rightDrive2.getCurrentPosition() - distance_to_travel;
+            config.left_1_wheel_target = config.leftDrive.getCurrentPosition() - distance_to_travel;
+            config.left_2_wheel_target = config.leftDrive2.getCurrentPosition() + distance_to_travel;
 
             // Set the target positions to move to
             config.rightDrive.setTargetPosition(config.right_1_wheel_target);
@@ -163,7 +163,6 @@ public class Autonomous2023_P3 extends LinearOpMode {
 
                 telemetry.addData("Running to", " %7d :%7d", config.right_1_wheel_target, config.left_1_wheel_target);
                 telemetry.addData("Currently at", " at %5d :%5d", config.leftDrive.getCurrentPosition(), config.rightDrive.getCurrentPosition());
-                telemetry.update();
             }
 
             // Stop all motion;
@@ -210,13 +209,13 @@ public class Autonomous2023_P3 extends LinearOpMode {
 
                 telemetry.addData("Running to", " %7d :%7d", config.right_1_wheel_target, config.left_1_wheel_target);
                 telemetry.addData("Currently at", " at %5d :%5d", config.leftDrive.getCurrentPosition(), config.rightDrive.getCurrentPosition());
-                telemetry.update();
             }
 
             // Stop all motion;
             config.WheelBrake();
         }
     }
+
 
     public void linslide_up(double speed, double distance, double timeoutS) {
 
@@ -247,7 +246,6 @@ public class Autonomous2023_P3 extends LinearOpMode {
 
                 telemetry.addData("Running to", " %7d :%7d", config.slide_1_target, config.slide_2_target);
                 telemetry.addData("Currently at", " at %5d :%5d", config.linslide_right.getCurrentPosition(), config.linslide_left.getCurrentPosition());
-                telemetry.update();
             }
             // Stop all motion;
             config.LiftBrake();
@@ -282,7 +280,6 @@ public class Autonomous2023_P3 extends LinearOpMode {
                 }
                 telemetry.addData("Running to", " %7d :%7d", config.slide_1_target, config.slide_2_target);
                 telemetry.addData("Currently at", " at %5d :%5d", config.linslide_right.getCurrentPosition(), config.linslide_left.getCurrentPosition());
-                telemetry.update();
             }
 
             // Stop all motion;

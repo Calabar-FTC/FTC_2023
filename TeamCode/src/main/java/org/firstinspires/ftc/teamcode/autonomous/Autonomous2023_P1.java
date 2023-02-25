@@ -39,35 +39,24 @@ public class Autonomous2023_P1 extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
         // The sequence of commands to be completed in autonomous
-        Drive(config.drive_speed,80,5); // move to the cone
+        Drive(config.drive_speed, 40, 5); // move to the cone
 
-        Drive(0.3,5,1); // get closer to cone to adjust for error
+        Drive(0.3, 5, 1); // get closer to cone to adjust for error
 
 //        DetectSignalSymbol(5); // detect the beacon color
         config.delay(1); // wait for a second
 
-        Drive(config.drive_speed,20,5); // Center the robot in position
-
         //move to the position base on the signal sleeve
-        switch (signal_sleeve_position){
-            case 1:
-                MecanumTurn_left(1,30,5);
-                telemetry.addData("POSITION", "DETECTED 1");
-                break;
-            case 2:
-                telemetry.addData("POSITION", "DETECTED 2");
-                break;
-            case 3:
-                MecanumTurn_right(1,30,5);
-                telemetry.addData("POSITION", "DETECTED 3");
-                break;
-            default:
 
-        }
+        //Drive(config.drive_speed, 5, 5); // Center the robot in position
+        MecanumTurn_left(0.7, 60, 5);
 
-        telemetry.addData("AUTONOMOUS", "ROBOT JOB COMPLETED");
+        telemetry.addData("AUTONOMOUS","ROBOT JOB COMPLETED");
         telemetry.update();
     }
+
+
+
 
     public void SetEncoderMode(){
         config.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -284,7 +273,6 @@ public class Autonomous2023_P1 extends LinearOpMode {
                 telemetry.addData("Currently at", " at %5d :%5d", config.linslide_right.getCurrentPosition(), config.linslide_left.getCurrentPosition());
                 telemetry.update();
             }
-
             // Stop all motion;
             config.LiftBrake();
 

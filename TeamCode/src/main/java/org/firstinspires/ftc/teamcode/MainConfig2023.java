@@ -138,8 +138,8 @@ public class MainConfig2023 {
 
         // Initialize variables
         mecanum_power = 1;
-        drive_speed = 0.8;
-        slide_speedy = 0.7;
+        drive_speed = 0.2;
+        slide_speedy = 0.9;
         drive_speed_transmission_limiter = 0.8;
         lift_speed_transmission_limiter = 1;
 
@@ -193,16 +193,16 @@ public class MainConfig2023 {
         linslide_right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void claw_open(){
+    public void claw_close(){
         claw_right.setPosition(0.4);
         claw_left.setPosition(0.4);
-        claw_state = true;
+        claw_state = false;
     }
 
-    public void claw_close(){
+    public void claw_open(){
         claw_right.setPosition(0);
         claw_left.setPosition(0);
-        claw_state = false;
+        claw_state = true;
     }
 
     public boolean isopen(){

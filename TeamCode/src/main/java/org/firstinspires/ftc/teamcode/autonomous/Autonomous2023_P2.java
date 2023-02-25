@@ -39,14 +39,13 @@ public class Autonomous2023_P2 extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
         // The sequence of commands to be completed in autonomous
-        Drive(config.drive_speed,80,5); // move to the cone
+        Drive(config.drive_speed,40,5); // move to the cone
 
         Drive(0.3,5,1); // get closer to cone to adjust for error
-
 //        DetectSignalSymbol(5); // detect the beacon color
         config.delay(1); // wait for a second
 
-        Drive(config.drive_speed,20,5); // Center the robot in position
+        //Drive(config.drive_speed,20,5); // Center the robot in position
 
         //move to the position base on the signal sleeve
         switch (signal_sleeve_position){
@@ -55,6 +54,7 @@ public class Autonomous2023_P2 extends LinearOpMode {
                 telemetry.addData("POSITION", "DETECTED 1");
                 break;
             case 2:
+                //Drive(config.drive_speed,5,5); // Center the robot in position
                 telemetry.addData("POSITION", "DETECTED 2");
                 break;
             case 3:
@@ -62,11 +62,9 @@ public class Autonomous2023_P2 extends LinearOpMode {
                 telemetry.addData("POSITION", "DETECTED 3");
                 break;
             default:
-
         }
 
         telemetry.addData("AUTONOMOUS", "ROBOT JOB COMPLETED");
-        telemetry.update();
     }
 
     public void SetEncoderMode(){
